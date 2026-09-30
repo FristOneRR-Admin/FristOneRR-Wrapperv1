@@ -55,7 +55,8 @@ wrapper_setup_device_extensions(struct wrapper_physical_device *pdevice) {
          exts->extensions[idx] = true;
    }
 
-   exts->KHR_present_wait = exts->KHR_timeline_semaphore;
+   exts->KHR_present_wait = false;
+   exts->KHR_present_id = false;
    if (CHECK_FLAG("NO_PRESENT_WAIT")) {
       if (exts->KHR_present_wait) {
          WLOG("Disabling KHR_present_wait, some drivers misreport KHR_timeline_semaphore support (e.g. Adreno 6XX, disable by setting NO_PRESENT_WAIT=0)");

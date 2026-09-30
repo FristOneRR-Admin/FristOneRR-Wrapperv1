@@ -61,9 +61,9 @@ const struct vk_device_extension_table wrapper_device_extensions =
 #ifdef VK_USE_PLATFORM_DISPLAY_KHR
    .EXT_display_control = true,
 #endif
-   .KHR_present_id = true,
-   .KHR_present_wait = true,
-   .KHR_dynamic_rendering = true,
+   .KHR_present_id = false,
+   .KHR_present_wait = false,
+   .KHR_dynamic_rendering = false,
    .KHR_incremental_present = true,
    .EXT_map_memory_placed = true,
    .KHR_maintenance4 = true,
@@ -439,13 +439,34 @@ WRAPPER_GetDeviceProcAddr(VkDevice _device, const char* pName) {
 WRAPPER_QueueSubmit(VkQueue _queue, uint32_t submitCount,
                     const VkSubmitInfo* pSubmits, VkFence fence)
 {
-   return CHECK(QueueSubmit(_queue, submitCount, pSubmits, fence));
+   VkSubmitInfo local[8];
+   const VkSubmitInfo *use = pSubmits;
+   if (pSubmits && submitCount > 0 && submitCount <= 8) {
+      for (uint32_t i = 0; i < submitCount; i++) {
+         local[i] = pSubmits[i];
+         local[i].waitSemaphoreCount = 0;
+         local[i].pWaitSemaphores = NULL;
+         local[i].pWaitDstStageMask = NULL;
+      }
+      use = local;
+   }
+   return CHECK(QueueSubmit(_queue, submitCount, use, fence));
 }
 
 WRAPPER_QueueSubmit2(VkQueue _queue, uint32_t submitCount,
                      const VkSubmitInfo2* pSubmits, VkFence fence)
 {
-   return CHECK(QueueSubmit2(_queue, submitCount, pSubmits, fence));
+   VkSubmitInfo2 local[8];
+   const VkSubmitInfo2 *use = pSubmits;
+   if (pSubmits && submitCount > 0 && submitCount <= 8) {
+      for (uint32_t i = 0; i < submitCount; i++) {
+         local[i] = pSubmits[i];
+         local[i].waitSemaphoreInfoCount = 0;
+         local[i].pWaitSemaphoreInfos = NULL;
+      }
+      use = local;
+   }
+   return CHECK(QueueSubmit2(_queue, submitCount, use, fence));
 }
 
 WRAPPER_CmdExecuteCommands(VkCommandBuffer commandBuffer,

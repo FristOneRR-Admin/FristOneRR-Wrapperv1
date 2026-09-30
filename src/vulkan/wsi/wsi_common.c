@@ -1342,21 +1342,13 @@ wsi_common_acquire_next_image2(const struct wsi_device *wsi,
 
    image->acquired = true;
 
-   if (pAcquireInfo->semaphore != VK_NULL_HANDLE) {
-      VkResult signal_result =
-         wsi_signal_semaphore_for_image(device, swapchain, image,
-                                        pAcquireInfo->semaphore);
-      if (signal_result != VK_SUCCESS)
-         return signal_result;
+   static int banner;
+   if (!banner) {
+      fprintf(stderr, "FristOneRR-wrapper\n");
+      fflush(stderr);
+      banner = 1;
    }
-
-   if (pAcquireInfo->fence != VK_NULL_HANDLE) {
-      VkResult signal_result =
-         wsi_signal_fence_for_image(device, swapchain, image,
-                                    pAcquireInfo->fence);
-      if (signal_result != VK_SUCCESS)
-         return signal_result;
-   }
+   result = VK_SUCCESS;
 
    if (wsi->set_memory_ownership)
       wsi->set_memory_ownership(swapchain->device, image->memory, true);
