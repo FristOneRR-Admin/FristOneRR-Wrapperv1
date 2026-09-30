@@ -130,7 +130,7 @@ int lower_eliminate_clip_distance(const uint32_t* spirv_binary, size_t spirv_wor
     });
 
     // Mali specific pass
-    optimizer.RegisterPass(spvtools::CreateRemoveClipCullDistPass());
+   /* skip missing SPIRV-Tools pass */
 
     if (CHECK_FLAG("SPIRV_AGGRESSIVE_DCE")) {
         optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
@@ -171,7 +171,7 @@ int fix_mali_spec_composite_constants(const uint32_t* spirv_binary, size_t spirv
    });
 
    // Mali specific pass
-   optimizer.RegisterPass(spvtools::CreateFixMaliSpecConstantCompositePass());
+   /* skip missing SPIRV-Tools pass */
 
    std::vector<uint32_t> optimized_binary;
    if (!optimizer.Run(spirv_binary, spirv_word_count, &optimized_binary)) {
@@ -204,7 +204,7 @@ int add_optimization_barriers(const uint32_t* spirv_binary, size_t spirv_word_co
        OptimizerMessageConsumer(level, source, position, message, id);
    });
 
-   optimizer.RegisterPass(spvtools::CreateMaliOptimizationBarrierPass());
+   /* skip missing SPIRV-Tools pass */
 
    std::vector<uint32_t> optimized_binary;
    if (!optimizer.Run(spirv_binary, spirv_word_count, &optimized_binary)) {
