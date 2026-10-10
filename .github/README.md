@@ -1,75 +1,87 @@
-# FristOneRR-Wrapperv1
+# FristOneRR-Wrapper 2.0
 
-A Vulkan-on-Vulkan wrapper for Winlator, tuned for the
+A Vulkan-on-Vulkan wrapper for Winlator, made for the
 **[FristOneRR PanVK driver](https://github.com/FristOneRR/FristOneRR-Panvk-Driver)** on Mali GPUs (kbase).
-With it, **DXVK 2.x runs D3D9 and D3D11** (feature level 11_1) on the FristOneRR driver.
+With it, **DXVK runs D3D8, D3D9, D3D10 and D3D11 for both 32-bit and 64-bit games** on the FristOneRR driver.
 
 It is a fork of **[leegao/bionic-vulkan-wrapper](https://github.com/leegao/bionic-vulkan-wrapper)**
-at tag **v0.0.5r5**. Almost all of the code is leegao's work (and Mesa's); this fork changes
-four files. Thank you, leegao!
-
-> **Status:** first release, made to ship with FristOneRR PanVK **beta 1.2.0**.
+at tag **v0.0.5r5**. Almost all of the code is leegao's work (and Mesa's). Thank you, leegao!
 
 ---
 
-## What is changed (compared to leegao v0.0.5r5)
+## Official download and SHA256
 
-The full history is kept, so you can see every change with
-`git diff v0.0.5r5 fristonerr-wrapper-v1`.
+Download only from the [Releases](../../releases) page of this repository.
+To check that your file is the original, compare its SHA256 with the table below
+(on Android: a file-hash app, or Termux: `sha256sum <file>`).
 
-| Commit | Files | Change |
-|---|---|---|
-| Termux build fix | `src/util/anon_file.c`, `src/util/rand_xor.c` | Use libc `memfd_create()` / `getrandom()` instead of raw `syscall()`. No functional change. |
-| Skip missing SPIRV-Tools passes | `src/vulkan/wrapper/spirv_edit.cpp` | leegao's Mali SPIRV-Tools passes (RemoveClipCullDist, FixMaliSpecConstantComposite, MaliOptimizationBarrier) are not in the stock Termux SPIRV-Tools, so they are skipped. The last two only run on the Arm proprietary driver. RemoveClipCullDist would run on FristOneRR PanVK; without it, clip distances reach the driver unchanged. |
-| Wrapper changes | `src/vulkan/wrapper/wrapper_device.c`, `wrapper_physical_device.c`, `src/vulkan/wsi/wsi_common.c` | Disable `VK_KHR_present_id`, `VK_KHR_present_wait` and `VK_KHR_dynamic_rendering` (the extension; Vulkan 1.3 dynamic rendering stays). Drop wait semaphores in `vkQueueSubmit` / `vkQueueSubmit2` (up to 8 submits). Don't signal the acquire semaphore/fence in `vkAcquireNextImage2`. Print `FristOneRR-wrapper` once to the log. |
+| File | SHA256 |
+|---|---|
+| `FristOneRR-Wrapper-2.0.zip` | `8e3254fff8d0604d4e30b5586683827beb387aa4cd229d50e3ce4ae3c3ee0686` |
+| `FristOneRR-Wrapper-2.0.tzst` | `0f7bde510d5f902f3295c847ebabc7d95183b9b82f98bf114b9cd3e4f0dd2980` |
+| `libvulkan_wrapper.so` (inside the zip / tzst) | `ab4f32ad587d635dd56a8886519697dbe957e6ead2229086dd00310f9ab20a89` |
 
-With the leegao wrapper, DXVK 2.x crashed on the first frame on FristOneRR PanVK. These changes fix
-that.
-
-### The PanVK name on screen
-
-With this wrapper, Winlator and the DXVK HUD show the **real driver** instead of a generic
-"Wrapper" device, for the first time with FristOneRR PanVK:
-
-```
-Mali-G57 MC2
-Driver:  panvk
-Version: FristOneRR 1.2.0 (Mesa 26.3.0-devel)
-```
-
-So you can see at a glance that the game is running on PanVK, and which FristOneRR version.
+If the SHA256 is different, the file is not ours. Don't install it.
 
 ---
 
-## Limitations
+## What's new in 2.0
 
-- **Made for FristOneRR PanVK.** The driver runs one queue strictly in order, so the dropped waits
-  are safe there. On other drivers (for example the stock Mali driver) you may see flicker or
-  corruption.
-- **64-bit games only** for now. 32-bit games don't start with this wrapper yet; use the leegao
-  wrapper with DXVK 1.10.3 for them.
-- Apps that wait on the swapchain **acquire fence** can hang (DXVK uses semaphores, so it is fine).
-- GPU memory size comes from the driver (FristOneRR 1.2.0 reports 25 % of RAM, 1–3 GB).
+- **32-bit games** now work: D3D8, D3D9, D3D10 and D3D11 run for 32-bit and 64-bit games.
+- **D3D12** (vkd3d-proton) starts but isn't complete yet. It is being worked on for the next update.
+- **Better BCn texture emulation:** texture arrays, cubemaps and 3D textures are decoded correctly
+  (before, only the first layer was right and some games crashed with a GPU page fault).
+- Fixes for wrong BC7 blocks on Mali, and lower memory use while uploading compressed textures.
 
 ---
 
 ## Install
 
-The wrapper is **not** installed through the Winlator driver menu. You replace the wrapper
-library inside the container.
+The wrapper is **not** installed through the Winlator driver menu. There are two packages with the
+same `libvulkan_wrapper.so` inside:
 
-1. Download the wrapper zip from [Releases](../../releases) and **extract it**.
+| File | For |
+|---|---|
+| `FristOneRR-Wrapper-2.0.zip` | Apps where you copy the `.so` into the container yourself (steps below) |
+| `FristOneRR-Wrapper-2.0.tzst` | Apps that install wrappers from a `.tzst` file (contains `usr/lib/libvulkan_wrapper.so`) |
+
+**With the zip:**
+
+1. Download `FristOneRR-Wrapper-2.0.zip` from [Releases](../../releases) and **extract it**.
    Inside is `libvulkan_wrapper.so`; you need this file, not the zip.
 2. Start the container and open a file manager in it (for example Winlator's file manager or
    Explorer).
 3. Go to drive **Z:** → `usr` → `lib`.
 4. Rename the existing `libvulkan_wrapper.so` to `libvulkan_wrapper.so.bak` (so you can go back).
 5. Copy the new `libvulkan_wrapper.so` into `Z:\usr\lib\`.
-6. In the container settings, choose **Panvk-Mali-G57-beta_1.2.0** as the Vulkan driver, use
-   **DXVK 2.x** (tested: 2.3.1, 2.4.1-gplasync) and set **BCn texture emulation to "none"**.
-7. Restart the container. The Wine log should contain one line: `FristOneRR-wrapper`.
+6. In the container settings, choose **Panvk-Mali-G57-2.0-rc1** as the Vulkan driver and pick a DXVK
+   version.
+7. Restart the container. The Wine log should contain one line: `FristOneRR-wrapper 2.0`.
 
 To undo: delete the new file and rename `libvulkan_wrapper.so.bak` back.
+
+If a game crashes on start or the phone freezes, set **BCn texture emulation to "none"**.
+
+---
+
+## The PanVK name on screen
+
+With this wrapper, Winlator and the DXVK HUD show the **real driver** instead of a generic
+"Wrapper" device:
+
+```
+Mali-G57 MC2
+Driver:  panvk
+Version: FristOneRR 2.0-rc1 (Mesa 26.3.0-devel)
+```
+
+---
+
+## Limitations
+
+- **Made for FristOneRR PanVK.** It skips some swapchain/semaphore waits that this driver doesn't
+  need. On other drivers (for example the stock Mali driver) you may see flicker or corruption.
+- D3D12 is not complete yet.
 
 ---
 
@@ -85,20 +97,7 @@ with some other wrappers. This is expected:
   not shown to games (the same happens with leegao's wrapper).
 
 A lower number does **not** mean fewer games work. DXVK only needs a specific set of extensions,
-and all of them are there (DXVK 2.x starts at D3D11 feature level 11_1).
-
----
-
-## Building (Termux)
-
-Same as leegao's wrapper, but linked against the SPIRV-Tools static libraries from Termux
-(`libSPIRV-Tools.a` and `libSPIRV-Tools-opt.a` in `$PREFIX/lib`):
-
-```sh
-meson setup build -Dvulkan-drivers=wrapper -Dgallium-drivers= -Dplatforms=android,x11 -Dbuildtype=release
-ninja -C build
-# output: build/src/vulkan/wrapper/libvulkan_wrapper.so
-```
+and all of them are there.
 
 ---
 
@@ -108,8 +107,8 @@ ninja -C build
 |---|---|
 | **leegao** / [bionic-vulkan-wrapper](https://github.com/leegao/bionic-vulkan-wrapper) | The wrapper this fork is built on (nearly all of the code) |
 | **Mesa developers** | Vulkan runtime and WSI code |
-| **FristOneRR** | The changes listed above, testing with FristOneRR PanVK |
-| **Claude** (AI assistant by Anthropic) | Debugging help and review |
+| **FristOneRR** | The FristOneRR changes, testing with FristOneRR PanVK |
+| **Claude** (AI assistant by Anthropic) | Development help, debugging and review |
 
 ## License
 
