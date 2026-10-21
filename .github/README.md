@@ -94,6 +94,13 @@ Report problems in the driver's [Issues](https://github.com/FristOneRR/FristOneR
 | **Claude** (AI assistant by Anthropic) | Development help, debugging and code review |
 | **All testers** | Reports and logs |
 
+## Support
+
+Support this project on Ko-fi.  
+All donations will go toward improving PanVK and continuing development for all PanVK Mali versions from v6 to v14.
+
+[Support on Ko-fi](https://ko-fi.com/fristonerr)
+
 ## License
 
 Built from Mesa and bionic-vulkan-wrapper (MIT license).
