@@ -94,10 +94,13 @@ Report problems in the driver's [Issues](https://github.com/FristOneRR/FristOneR
 | **Claude** (AI assistant by Anthropic) | Development help, debugging and code review |
 | **All testers** | Reports and logs |
 
-## Support
+## support 
 
-Support this project on Ko-fi.  
-All donations will go toward improving PanVK and continuing development for all PanVK Mali versions from v6 to v14.
+☕ Support my work
+
+If you enjoy my projects and would like to support my work, you can buy me a coffee on Ko-fi! Every project I create is and will always remain free, but any support is greatly appreciated and helps me keep working on new projects and improvements.
+
+Thank you for your support!
 
 [Support on Ko-fi](https://ko-fi.com/fristonerr)
 
